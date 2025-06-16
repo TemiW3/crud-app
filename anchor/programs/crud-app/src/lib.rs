@@ -9,7 +9,7 @@ declare_id!("FqzkXZdwYjurnUKetJCAvaUw5WAqbwzU6gZEwydeEfqS");
 pub mod counter {
     use super::*;
 
-    pub fn create_to_do_list_entry(ctx: Context<CreateEntry>, first_item: String) -> Result<()>{
+    pub fn create_to_do_list_entry(ctx: Context<CreateList>, first_item: String) -> Result<()>{
         require!(first_item.len() <= 100, ToDoError::ItemTooLong);
         let to_do_list_entry = &mut ctx.accounts.to_do_list_entry;
         to_do_list_entry.owner = ctx.accounts.owner.key();
@@ -32,13 +32,30 @@ pub mod counter {
     }
 
 
+    pub fn add_item_to_to_do_list_entry(ctx: Context<AddItem>, new_item: String) -> Result<()> {
+        require!(new_item.len() <= 100, ToDoError::ItemTooLong);
+
+        let to_do_list_entry = &mut ctx.accounts.to_do_list_entry;
+
+        if to_do_list_entry.list_item.len() >= 50 {
+            return Err(error!(ToDoError::ItemTooLong));
+        }
+
+        require!(to_do_list_entry.list_item.len() < 50, ToDoError::ListFull);
+
+        to_do_list_entry.list_item.push(new_item);
+
+        Ok(())
+    }
+
+
 
 
    
 }
 
 #[derive(Accounts)]
-pub struct CreateEntry<'info>{
+pub struct CreateList<'info>{
     #[account(init, seeds = [b"todo", owner.key().as_ref()], bump, payer = owner, space = 8 + 32 + 4 + (50 * (4 + 100)))]
     pub to_do_list_entry: Account<'info, ToDoListEntryState>,
     #[account(mut)]
@@ -50,7 +67,20 @@ pub struct CreateEntry<'info>{
 pub struct UpdateEntry<'info> {
     #[account(mut, 
         seeds = [b"todo", owner.key().as_ref()], 
-        bump, )]
+        bump, 
+        has_one = owner @ ToDoError::Unauthorized)]
+    pub to_do_list_entry: Account<'info, ToDoListEntryState>,
+
+    #[account(mut)]
+    pub owner: Signer<'info>,
+}
+
+#[derive(Accounts)]
+pub struct AddItem<'info> {
+    #[account(mut, 
+        seeds = [b"todo", owner.key().as_ref()], 
+        bump,
+        has_one = owner @ ToDoError::Unauthorized )]
     pub to_do_list_entry: Account<'info, ToDoListEntryState>,
 
     #[account(mut)]
@@ -67,4 +97,8 @@ pub struct ToDoListEntryState {
 pub enum ToDoError {
     #[msg("The item is too long.")]
     ItemTooLong,
+    #[msg("List is full. Max 50 items allowed.")]
+    ListFull,
+     #[msg("Only the owner can modify this to-do list.")]
+    Unauthorized,
 }
