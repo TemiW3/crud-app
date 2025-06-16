@@ -18,7 +18,21 @@ pub mod counter {
         Ok(())
     }
 
-    
+    pub fn update_to_do_list_entry(ctx: Context<UpdateEntry>, item_index: u32, new_item: String) -> Result<()> {
+        require!(new_item.len() <= 100, ToDoError::ItemTooLong);
+
+        let to_do_list_entry = &mut ctx.accounts.to_do_list_entry;
+
+        if item_index as usize >= to_do_list_entry.list_item.len() {
+            return Err(error!(ToDoError::ItemTooLong));
+        }
+        to_do_list_entry.list_item[item_index as usize] = new_item;
+
+        Ok(())
+    }
+
+
+
 
    
 }
@@ -30,6 +44,17 @@ pub struct CreateEntry<'info>{
     #[account(mut)]
     pub owner: Signer<'info>,
     pub system_program: Program<'info, System>,
+}
+
+#[derive(Accounts)]
+pub struct UpdateEntry<'info> {
+    #[account(mut, 
+        seeds = [b"todo", owner.key().as_ref()], 
+        bump, )]
+    pub to_do_list_entry: Account<'info, ToDoListEntryState>,
+
+    #[account(mut)]
+    pub owner: Signer<'info>,
 }
 
 #[account]
