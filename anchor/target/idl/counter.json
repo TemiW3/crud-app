@@ -8,54 +8,41 @@
   },
   "instructions": [
     {
-      "name": "close",
-      "discriminator": [98, 165, 201, 177, 108, 65, 206, 96],
+      "name": "create_to_do_list_entry",
+      "discriminator": [
+        91,
+        43,
+        98,
+        189,
+        255,
+        167,
+        30,
+        73
+      ],
       "accounts": [
         {
-          "name": "payer",
+          "name": "to_do_list_entry",
           "writable": true,
-          "signer": true
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  116,
+                  111,
+                  100,
+                  111
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "owner"
+              }
+            ]
+          }
         },
         {
-          "name": "counter",
-          "writable": true
-        }
-      ],
-      "args": []
-    },
-    {
-      "name": "decrement",
-      "discriminator": [106, 227, 168, 59, 248, 27, 150, 101],
-      "accounts": [
-        {
-          "name": "counter",
-          "writable": true
-        }
-      ],
-      "args": []
-    },
-    {
-      "name": "increment",
-      "discriminator": [11, 18, 104, 9, 104, 174, 59, 33],
-      "accounts": [
-        {
-          "name": "counter",
-          "writable": true
-        }
-      ],
-      "args": []
-    },
-    {
-      "name": "initialize",
-      "discriminator": [175, 175, 109, 31, 13, 152, 155, 237],
-      "accounts": [
-        {
-          "name": "payer",
-          "writable": true,
-          "signer": true
-        },
-        {
-          "name": "counter",
+          "name": "owner",
           "writable": true,
           "signer": true
         },
@@ -64,40 +51,44 @@
           "address": "11111111111111111111111111111111"
         }
       ],
-      "args": []
-    },
-    {
-      "name": "set",
-      "discriminator": [198, 51, 53, 241, 116, 29, 126, 194],
-      "accounts": [
-        {
-          "name": "counter",
-          "writable": true
-        }
-      ],
       "args": [
         {
-          "name": "value",
-          "type": "u8"
+          "name": "list_item",
+          "type": "string"
         }
       ]
     }
   ],
   "accounts": [
     {
-      "name": "Counter",
-      "discriminator": [255, 176, 4, 245, 188, 253, 124, 25]
+      "name": "ToDoListEntryState",
+      "discriminator": [
+        235,
+        205,
+        248,
+        167,
+        142,
+        22,
+        236,
+        22
+      ]
     }
   ],
   "types": [
     {
-      "name": "Counter",
+      "name": "ToDoListEntryState",
       "type": {
         "kind": "struct",
         "fields": [
           {
-            "name": "count",
-            "type": "u8"
+            "name": "owner",
+            "type": "pubkey"
+          },
+          {
+            "name": "list_item",
+            "type": {
+              "vec": "string"
+            }
           }
         ]
       }

@@ -5,108 +5,99 @@
  * IDL can be found at `target/idl/counter.json`.
  */
 export type Counter = {
-  address: 'FqzkXZdwYjurnUKetJCAvaUw5WAqbwzU6gZEwydeEfqS'
-  metadata: {
-    name: 'counter'
-    version: '0.1.0'
-    spec: '0.1.0'
-    description: 'Created with Anchor'
-  }
-  instructions: [
+  "address": "FqzkXZdwYjurnUKetJCAvaUw5WAqbwzU6gZEwydeEfqS",
+  "metadata": {
+    "name": "counter",
+    "version": "0.1.0",
+    "spec": "0.1.0",
+    "description": "Created with Anchor"
+  },
+  "instructions": [
     {
-      name: 'close'
-      discriminator: [98, 165, 201, 177, 108, 65, 206, 96]
-      accounts: [
+      "name": "createToDoListEntry",
+      "discriminator": [
+        91,
+        43,
+        98,
+        189,
+        255,
+        167,
+        30,
+        73
+      ],
+      "accounts": [
         {
-          name: 'payer'
-          writable: true
-          signer: true
+          "name": "toDoListEntry",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  116,
+                  111,
+                  100,
+                  111
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "owner"
+              }
+            ]
+          }
         },
         {
-          name: 'counter'
-          writable: true
+          "name": "owner",
+          "writable": true,
+          "signer": true
         },
+        {
+          "name": "systemProgram",
+          "address": "11111111111111111111111111111111"
+        }
+      ],
+      "args": [
+        {
+          "name": "listItem",
+          "type": "string"
+        }
       ]
-      args: []
-    },
+    }
+  ],
+  "accounts": [
     {
-      name: 'decrement'
-      discriminator: [106, 227, 168, 59, 248, 27, 150, 101]
-      accounts: [
-        {
-          name: 'counter'
-          writable: true
-        },
+      "name": "toDoListEntryState",
+      "discriminator": [
+        235,
+        205,
+        248,
+        167,
+        142,
+        22,
+        236,
+        22
       ]
-      args: []
-    },
+    }
+  ],
+  "types": [
     {
-      name: 'increment'
-      discriminator: [11, 18, 104, 9, 104, 174, 59, 33]
-      accounts: [
-        {
-          name: 'counter'
-          writable: true
-        },
-      ]
-      args: []
-    },
-    {
-      name: 'initialize'
-      discriminator: [175, 175, 109, 31, 13, 152, 155, 237]
-      accounts: [
-        {
-          name: 'payer'
-          writable: true
-          signer: true
-        },
-        {
-          name: 'counter'
-          writable: true
-          signer: true
-        },
-        {
-          name: 'systemProgram'
-          address: '11111111111111111111111111111111'
-        },
-      ]
-      args: []
-    },
-    {
-      name: 'set'
-      discriminator: [198, 51, 53, 241, 116, 29, 126, 194]
-      accounts: [
-        {
-          name: 'counter'
-          writable: true
-        },
-      ]
-      args: [
-        {
-          name: 'value'
-          type: 'u8'
-        },
-      ]
-    },
-  ]
-  accounts: [
-    {
-      name: 'counter'
-      discriminator: [255, 176, 4, 245, 188, 253, 124, 25]
-    },
-  ]
-  types: [
-    {
-      name: 'counter'
-      type: {
-        kind: 'struct'
-        fields: [
+      "name": "toDoListEntryState",
+      "type": {
+        "kind": "struct",
+        "fields": [
           {
-            name: 'count'
-            type: 'u8'
+            "name": "owner",
+            "type": "pubkey"
           },
+          {
+            "name": "listItem",
+            "type": {
+              "vec": "string"
+            }
+          }
         ]
       }
-    },
+    }
   ]
-}
+};
