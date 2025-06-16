@@ -1,0 +1,273 @@
+{
+  "address": "FqzkXZdwYjurnUKetJCAvaUw5WAqbwzU6gZEwydeEfqS",
+  "metadata": {
+    "name": "todo_list",
+    "version": "0.1.0",
+    "spec": "0.1.0",
+    "description": "Created with Anchor"
+  },
+  "instructions": [
+    {
+      "name": "add_item_to_to_do_list_entry",
+      "discriminator": [
+        191,
+        242,
+        156,
+        7,
+        142,
+        179,
+        141,
+        195
+      ],
+      "accounts": [
+        {
+          "name": "to_do_list_entry",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  116,
+                  111,
+                  100,
+                  111
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "owner"
+              }
+            ]
+          }
+        },
+        {
+          "name": "owner",
+          "writable": true,
+          "signer": true,
+          "relations": [
+            "to_do_list_entry"
+          ]
+        }
+      ],
+      "args": [
+        {
+          "name": "new_item",
+          "type": "string"
+        }
+      ]
+    },
+    {
+      "name": "create_to_do_list_entry",
+      "discriminator": [
+        91,
+        43,
+        98,
+        189,
+        255,
+        167,
+        30,
+        73
+      ],
+      "accounts": [
+        {
+          "name": "to_do_list_entry",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  116,
+                  111,
+                  100,
+                  111
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "owner"
+              }
+            ]
+          }
+        },
+        {
+          "name": "owner",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "system_program",
+          "address": "11111111111111111111111111111111"
+        }
+      ],
+      "args": [
+        {
+          "name": "first_item",
+          "type": "string"
+        }
+      ]
+    },
+    {
+      "name": "remove_item_from_to_do_list_entry",
+      "discriminator": [
+        217,
+        252,
+        41,
+        185,
+        134,
+        113,
+        61,
+        189
+      ],
+      "accounts": [
+        {
+          "name": "to_do_list_entry",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  116,
+                  111,
+                  100,
+                  111
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "owner"
+              }
+            ]
+          }
+        },
+        {
+          "name": "owner",
+          "writable": true,
+          "signer": true,
+          "relations": [
+            "to_do_list_entry"
+          ]
+        }
+      ],
+      "args": [
+        {
+          "name": "item_index",
+          "type": "u32"
+        }
+      ]
+    },
+    {
+      "name": "update_to_do_list_entry",
+      "discriminator": [
+        75,
+        235,
+        6,
+        133,
+        22,
+        172,
+        156,
+        198
+      ],
+      "accounts": [
+        {
+          "name": "to_do_list_entry",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  116,
+                  111,
+                  100,
+                  111
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "owner"
+              }
+            ]
+          }
+        },
+        {
+          "name": "owner",
+          "writable": true,
+          "signer": true,
+          "relations": [
+            "to_do_list_entry"
+          ]
+        }
+      ],
+      "args": [
+        {
+          "name": "item_index",
+          "type": "u32"
+        },
+        {
+          "name": "new_item",
+          "type": "string"
+        }
+      ]
+    }
+  ],
+  "accounts": [
+    {
+      "name": "ToDoListEntryState",
+      "discriminator": [
+        235,
+        205,
+        248,
+        167,
+        142,
+        22,
+        236,
+        22
+      ]
+    }
+  ],
+  "errors": [
+    {
+      "code": 6000,
+      "name": "ItemTooLong",
+      "msg": "The item is too long."
+    },
+    {
+      "code": 6001,
+      "name": "ListFull",
+      "msg": "List is full. Max 50 items allowed."
+    },
+    {
+      "code": 6002,
+      "name": "Unauthorized",
+      "msg": "Only the owner can modify this to-do list."
+    },
+    {
+      "code": 6003,
+      "name": "WrongIndex",
+      "msg": "This item index is wrong."
+    }
+  ],
+  "types": [
+    {
+      "name": "ToDoListEntryState",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "owner",
+            "type": "pubkey"
+          },
+          {
+            "name": "list_item",
+            "type": {
+              "vec": "string"
+            }
+          }
+        ]
+      }
+    }
+  ]
+}
