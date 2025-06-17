@@ -141,7 +141,7 @@ function CounterCard({ account }: { account: PublicKey }) {
     item: item,
     isDone: false,
   }
-
+  const { publicKey } = useWallet()
   const handleAddTask = () => {
     if (publicKey && isFromValid) {
       addTask.mutateAsync({
@@ -150,7 +150,6 @@ function CounterCard({ account }: { account: PublicKey }) {
     }
   }
 
-  const { publicKey } = useWallet()
   return accountQuery.isLoading ? (
     <span className="loading loading-spinner loading-lg"></span>
   ) : (
