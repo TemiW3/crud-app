@@ -1,20 +1,95 @@
 'use client'
 
 import { Keypair, PublicKey } from '@solana/web3.js'
-import { useMemo } from 'react'
-import { ExplorerLink } from '../cluster/cluster-ui'
 import { useCounterProgram, useCounterProgramAccount } from './counter-data-access'
 import { ellipsify } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../ui/card'
+import { useState } from 'react'
+import { useWallet } from '@solana/wallet-adapter-react'
+import { useEffect } from 'react'
+
+import { Program } from '@coral-xyz/anchor'
+import { TodoList } from '../../../anchor/target/types/todo_list'
+
+interface Task {
+  listItem: string
+  isDone: boolean
+}
 
 export function CounterCreate() {
-  const { initialize } = useCounterProgram()
+  const [item, setListItem] = useState('')
+  const isDone = false
+  const { createEntry } = useCounterProgram()
+  const { publicKey } = useWallet()
+
+  const isFromValid = item.trim() !== ''
+
+  const [hasToDoList, setHasToDoList] = useState<boolean>(false)
+  const [checkingToDoList, setCheckingToDoList] = useState<boolean>(true)
+  const { program } = useCounterProgram()
+
+  // Check if user already has a todo list
+  // This effect runs when publicKey or getProgram changes
+  // and updates hasToDoList accordingly
+  useEffect(() => {
+    const checkToDoList = async () => {
+      setCheckingToDoList(true)
+      try {
+        if (publicKey && program) {
+          const [todoPda] = PublicKey.findProgramAddressSync(
+            [Buffer.from('todo'), publicKey.toBuffer()],
+            program.programId,
+          )
+          await program.account.toDoListEntryState.fetch(todoPda)
+          setHasToDoList(true)
+        } else {
+          setHasToDoList(false)
+        }
+      } catch (err) {
+        setHasToDoList(false)
+      } finally {
+        setCheckingToDoList(false)
+      }
+    }
+    checkToDoList()
+  }, [publicKey, program])
+
+  const handleSubmit = () => {
+    if (publicKey && isFromValid) {
+      createEntry.mutateAsync({
+        owner: publicKey,
+        list_items: [{ item, isDone }],
+      })
+    }
+  }
+
+  if (!publicKey) {
+    return (
+      <div className="alert alert-warning">
+        <span>Please connect your wallet </span>
+      </div>
+    )
+  }
 
   return (
-    <Button onClick={() => initialize.mutateAsync(Keypair.generate())} disabled={initialize.isPending}>
-      Create {initialize.isPending && '...'}
-    </Button>
+    <div>
+      <input
+        type="text"
+        placeholder="Enter item"
+        value={item}
+        onChange={(e) => setListItem(e.target.value)}
+        className="input input-bordered w-full max-w-xs mb-2"
+        disabled={hasToDoList}
+      />
+      <Button
+        onClick={handleSubmit}
+        disabled={!isFromValid || createEntry.isPending || hasToDoList || checkingToDoList}
+        className="btn btn-xs lg:btn-md btn-primary"
+      >
+        Create Entry
+      </Button>
+    </div>
   )
 }
 
@@ -31,6 +106,7 @@ export function CounterList() {
       </div>
     )
   }
+
   return (
     <div className={'space-y-6'}>
       {accounts.isLoading ? (
@@ -52,64 +128,80 @@ export function CounterList() {
 }
 
 function CounterCard({ account }: { account: PublicKey }) {
-  const { accountQuery, incrementMutation, setMutation, decrementMutation, closeMutation } = useCounterProgramAccount({
+  const { accountQuery, toggleTask, deleteTask, addTask } = useCounterProgramAccount({
     account,
   })
 
-  const count = useMemo(() => accountQuery.data?.count ?? 0, [accountQuery.data?.count])
+  const [item, setListItem] = useState('')
 
+  const isFromValid = item.trim() !== ''
+
+  const newItem = {
+    item: item,
+    isDone: false,
+  }
+
+  const handleAddTask = () => {
+    if (publicKey && isFromValid) {
+      addTask.mutateAsync({
+        newTask: newItem,
+      })
+    }
+  }
+
+  const { publicKey } = useWallet()
   return accountQuery.isLoading ? (
     <span className="loading loading-spinner loading-lg"></span>
   ) : (
-    <Card>
+    <Card className="bg-base-100 shadow-xl">
       <CardHeader>
-        <CardTitle>Counter: {count}</CardTitle>
-        <CardDescription>
-          Account: <ExplorerLink path={`account/${account}`} label={ellipsify(account.toString())} />
-        </CardDescription>
+        <CardTitle>Account: {ellipsify(account.toString(), 6)}</CardTitle>
+        {/* <CardDescription>
+          <ExplorerLink address={account} />
+        </CardDescription> */}
       </CardHeader>
       <CardContent>
-        <div className="flex gap-4">
-          <Button
-            variant="outline"
-            onClick={() => incrementMutation.mutateAsync()}
-            disabled={incrementMutation.isPending}
-          >
-            Increment
-          </Button>
-          <Button
-            variant="outline"
-            onClick={() => {
-              const value = window.prompt('Set value to:', count.toString() ?? '0')
-              if (!value || parseInt(value) === count || isNaN(parseInt(value))) {
-                return
-              }
-              return setMutation.mutateAsync(parseInt(value))
-            }}
-            disabled={setMutation.isPending}
-          >
-            Set
-          </Button>
-          <Button
-            variant="outline"
-            onClick={() => decrementMutation.mutateAsync()}
-            disabled={decrementMutation.isPending}
-          >
-            Decrement
-          </Button>
-          <Button
-            variant="destructive"
-            onClick={() => {
-              if (!window.confirm('Are you sure you want to close this account?')) {
-                return
-              }
-              return closeMutation.mutateAsync()
-            }}
-            disabled={closeMutation.isPending}
-          >
-            Close
-          </Button>
-        </div>
+        {accountQuery.data?.list.map((task: Task, index: number) => (
+          <div key={index} className="flex items-center justify-between mb-2">
+            <span className={task.isDone ? 'line-through' : ''}>{task.listItem}</span>
+            <div className="flex space-x-2">
+              <Button
+                onClick={() => toggleTask.mutateAsync({ index })}
+                disabled={toggleTask.isPending}
+                variant="outline"
+              >
+                {task.isDone ? 'Undo' : 'Done'}
+              </Button>
+              {publicKey && (
+                <Button
+                  onClick={() => deleteTask.mutateAsync({ index })}
+                  disabled={deleteTask.isPending}
+                  variant="destructive"
+                >
+                  Delete
+                </Button>
+              )}
+            </div>
+          </div>
+        ))}
+        {publicKey && (
+          <div className="mt-4">
+            <input
+              type="text"
+              placeholder="Add new task"
+              value={item}
+              onChange={(e) => setListItem(e.target.value)}
+              className="input input-bordered w-full max-w-xs mb-2"
+            />
+            <Button
+              onClick={handleAddTask}
+              disabled={!isFromValid || addTask.isPending}
+              className="btn btn-primary mt-2"
+            >
+              Add Task
+            </Button>
+          </div>
+        )}
       </CardContent>
     </Card>
   )
