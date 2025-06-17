@@ -72,7 +72,9 @@ export function CounterCreate() {
     )
   }
 
-  return (
+  return hasToDoList ? (
+    <div></div>
+  ) : (
     <div>
       <input
         type="text"
@@ -80,11 +82,10 @@ export function CounterCreate() {
         value={item}
         onChange={(e) => setListItem(e.target.value)}
         className="input input-bordered w-full max-w-xs mb-2"
-        disabled={hasToDoList}
       />
       <Button
         onClick={handleSubmit}
-        disabled={!isFromValid || createEntry.isPending || hasToDoList || checkingToDoList}
+        disabled={!isFromValid || createEntry.isPending}
         className="btn btn-xs lg:btn-md btn-primary"
       >
         Create Entry
