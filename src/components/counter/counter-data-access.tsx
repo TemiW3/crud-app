@@ -4,11 +4,20 @@ import { getCounterProgram, getCounterProgramId } from '@project/anchor'
 import { useConnection } from '@solana/wallet-adapter-react'
 import { Cluster, Keypair, PublicKey } from '@solana/web3.js'
 import { useMutation, useQuery } from '@tanstack/react-query'
-import { useMemo } from 'react'
+import { use, useMemo } from 'react'
 import { useCluster } from '../cluster/cluster-data-access'
 import { useAnchorProvider } from '../solana/solana-provider'
 import { useTransactionToast } from '../use-transaction-toast'
 import { toast } from 'sonner'
+
+interface Task {
+  item: string
+  isDone: boolean
+}
+interface CreateEntryArgs {
+  owner: PublicKey
+  list_items: Task[]
+}
 
 export function useCounterProgram() {
   const { connection } = useConnection()
@@ -20,7 +29,7 @@ export function useCounterProgram() {
 
   const accounts = useQuery({
     queryKey: ['counter', 'all', { cluster }],
-    queryFn: () => program.account.counter.all(),
+    queryFn: () => program.account.toDoListEntryState.all(),
   })
 
   const getProgramAccount = useQuery({
@@ -28,25 +37,32 @@ export function useCounterProgram() {
     queryFn: () => connection.getParsedAccountInfo(programId),
   })
 
-  const initialize = useMutation({
-    mutationKey: ['counter', 'initialize', { cluster }],
-    mutationFn: (keypair: Keypair) =>
-      program.methods.initialize().accounts({ counter: keypair.publicKey }).signers([keypair]).rpc(),
-    onSuccess: async (signature) => {
-      transactionToast(signature)
-      await accounts.refetch()
+  const createEntry = useMutation<string, Error, CreateEntryArgs>({
+    mutationKey: ['todoEntry', 'create', { cluster }],
+    mutationFn: async ({ owner, list_items }) => {
+      // If only one task should be created at a time, use the first item
+      const firstTask = list_items[0]
+      return program.methods
+        .createToDoListEntry({
+          listItem: firstTask.item,
+          isDone: firstTask.isDone,
+        })
+        .rpc()
     },
-    onError: () => {
-      toast.error('Failed to initialize account')
+    onSuccess: (signature) => {
+      transactionToast(signature)
+      accounts.refetch()
+    },
+    onError: (error) => {
+      toast.error(`Error creating entry: ${error.message}`)
     },
   })
 
   return {
     program,
-    programId,
     accounts,
     getProgramAccount,
-    initialize,
+    createEntry,
   }
 }
 
@@ -57,50 +73,60 @@ export function useCounterProgramAccount({ account }: { account: PublicKey }) {
 
   const accountQuery = useQuery({
     queryKey: ['counter', 'fetch', { cluster, account }],
-    queryFn: () => program.account.counter.fetch(account),
+    queryFn: () => program.account.toDoListEntryState.fetch(account),
   })
 
-  const closeMutation = useMutation({
-    mutationKey: ['counter', 'close', { cluster, account }],
-    mutationFn: () => program.methods.close().accounts({ counter: account }).rpc(),
-    onSuccess: async (tx) => {
-      transactionToast(tx)
-      await accounts.refetch()
+  const toggleTask = useMutation<string, Error, { index: number }>({
+    mutationKey: ['todoEntry', 'toggle', { cluster, account }],
+    mutationFn: async ({ index }) => {
+      return program.methods.toggleStatus(index).rpc()
+    },
+    onSuccess: (signature) => {
+      transactionToast(signature)
+      accounts.refetch()
+    },
+    onError: (error) => {
+      toast.error(`Error toggling task: ${error.message}`)
     },
   })
 
-  const decrementMutation = useMutation({
-    mutationKey: ['counter', 'decrement', { cluster, account }],
-    mutationFn: () => program.methods.decrement().accounts({ counter: account }).rpc(),
-    onSuccess: async (tx) => {
-      transactionToast(tx)
-      await accountQuery.refetch()
+  const deleteTask = useMutation<string, Error, { index: number }>({
+    mutationKey: ['todoEntry', 'delete', { cluster, account }],
+    mutationFn: async ({ index }) => {
+      return program.methods.removeItemFromToDoListEntry(index).rpc()
+    },
+    onSuccess: (signature) => {
+      transactionToast(signature)
+      accounts.refetch()
+    },
+    onError: (error) => {
+      toast.error(`Error deleting task: ${error.message}`)
     },
   })
 
-  const incrementMutation = useMutation({
-    mutationKey: ['counter', 'increment', { cluster, account }],
-    mutationFn: () => program.methods.increment().accounts({ counter: account }).rpc(),
-    onSuccess: async (tx) => {
-      transactionToast(tx)
-      await accountQuery.refetch()
+  const addTask = useMutation<string, Error, { newTask: Task }>({
+    mutationKey: ['todoEntry', 'add', { cluster, account }],
+    mutationFn: async ({ newTask }) => {
+      // Map Task to the expected structure
+      const newItem = {
+        listItem: newTask.item,
+        isDone: newTask.isDone,
+      }
+      return program.methods.addItemToToDoListEntry(newItem).rpc()
+    },
+    onSuccess: (signature) => {
+      transactionToast(signature)
+      accounts.refetch()
+    },
+    onError: (error) => {
+      toast.error(`Error adding task: ${error.message}`)
     },
   })
-
-  const setMutation = useMutation({
-    mutationKey: ['counter', 'set', { cluster, account }],
-    mutationFn: (value: number) => program.methods.set(value).accounts({ counter: account }).rpc(),
-    onSuccess: async (tx) => {
-      transactionToast(tx)
-      await accountQuery.refetch()
-    },
-  })
-
   return {
     accountQuery,
-    closeMutation,
-    decrementMutation,
-    incrementMutation,
-    setMutation,
+    toggleTask,
+    deleteTask,
+    addTask,
+    program,
   }
 }

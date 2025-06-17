@@ -5,7 +5,7 @@
  * IDL can be found at `target/idl/todo_list.json`.
  */
 export type TodoList = {
-  "address": "FqzkXZdwYjurnUKetJCAvaUw5WAqbwzU6gZEwydeEfqS",
+  "address": "5FGL1x4ZsJcV8MiiUh7HtBgJEomVFopRAX1GNbF3xxTv",
   "metadata": {
     "name": "todoList",
     "version": "0.1.0",
@@ -59,7 +59,11 @@ export type TodoList = {
       "args": [
         {
           "name": "newItem",
-          "type": "string"
+          "type": {
+            "defined": {
+              "name": "task"
+            }
+          }
         }
       ]
     },
@@ -110,7 +114,11 @@ export type TodoList = {
       "args": [
         {
           "name": "firstItem",
-          "type": "string"
+          "type": {
+            "defined": {
+              "name": "task"
+            }
+          }
         }
       ]
     },
@@ -165,20 +173,20 @@ export type TodoList = {
       ]
     },
     {
-      "name": "updateToDoListEntry",
+      "name": "toggleStatus",
       "discriminator": [
-        75,
-        235,
-        6,
-        133,
-        22,
-        172,
-        156,
-        198
+        251,
+        215,
+        30,
+        52,
+        226,
+        153,
+        115,
+        130
       ],
       "accounts": [
         {
-          "name": "toDoListEntry",
+          "name": "todoList",
           "writable": true,
           "pda": {
             "seeds": [
@@ -193,28 +201,21 @@ export type TodoList = {
               },
               {
                 "kind": "account",
-                "path": "owner"
+                "path": "user"
               }
             ]
           }
         },
         {
-          "name": "owner",
+          "name": "user",
           "writable": true,
-          "signer": true,
-          "relations": [
-            "toDoListEntry"
-          ]
+          "signer": true
         }
       ],
       "args": [
         {
-          "name": "itemIndex",
+          "name": "index",
           "type": "u32"
-        },
-        {
-          "name": "newItem",
-          "type": "string"
         }
       ]
     }
@@ -258,6 +259,22 @@ export type TodoList = {
   ],
   "types": [
     {
+      "name": "task",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "listItem",
+            "type": "string"
+          },
+          {
+            "name": "isDone",
+            "type": "bool"
+          }
+        ]
+      }
+    },
+    {
       "name": "toDoListEntryState",
       "type": {
         "kind": "struct",
@@ -267,9 +284,13 @@ export type TodoList = {
             "type": "pubkey"
           },
           {
-            "name": "listItem",
+            "name": "list",
             "type": {
-              "vec": "string"
+              "vec": {
+                "defined": {
+                  "name": "task"
+                }
+              }
             }
           }
         ]

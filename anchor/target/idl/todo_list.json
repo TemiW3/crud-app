@@ -1,5 +1,5 @@
 {
-  "address": "FqzkXZdwYjurnUKetJCAvaUw5WAqbwzU6gZEwydeEfqS",
+  "address": "5FGL1x4ZsJcV8MiiUh7HtBgJEomVFopRAX1GNbF3xxTv",
   "metadata": {
     "name": "todo_list",
     "version": "0.1.0",
@@ -53,7 +53,11 @@
       "args": [
         {
           "name": "new_item",
-          "type": "string"
+          "type": {
+            "defined": {
+              "name": "Task"
+            }
+          }
         }
       ]
     },
@@ -104,7 +108,11 @@
       "args": [
         {
           "name": "first_item",
-          "type": "string"
+          "type": {
+            "defined": {
+              "name": "Task"
+            }
+          }
         }
       ]
     },
@@ -159,20 +167,20 @@
       ]
     },
     {
-      "name": "update_to_do_list_entry",
+      "name": "toggle_status",
       "discriminator": [
-        75,
-        235,
-        6,
-        133,
-        22,
-        172,
-        156,
-        198
+        251,
+        215,
+        30,
+        52,
+        226,
+        153,
+        115,
+        130
       ],
       "accounts": [
         {
-          "name": "to_do_list_entry",
+          "name": "todo_list",
           "writable": true,
           "pda": {
             "seeds": [
@@ -187,28 +195,21 @@
               },
               {
                 "kind": "account",
-                "path": "owner"
+                "path": "user"
               }
             ]
           }
         },
         {
-          "name": "owner",
+          "name": "user",
           "writable": true,
-          "signer": true,
-          "relations": [
-            "to_do_list_entry"
-          ]
+          "signer": true
         }
       ],
       "args": [
         {
-          "name": "item_index",
+          "name": "index",
           "type": "u32"
-        },
-        {
-          "name": "new_item",
-          "type": "string"
         }
       ]
     }
@@ -252,6 +253,22 @@
   ],
   "types": [
     {
+      "name": "Task",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "list_item",
+            "type": "string"
+          },
+          {
+            "name": "is_done",
+            "type": "bool"
+          }
+        ]
+      }
+    },
+    {
       "name": "ToDoListEntryState",
       "type": {
         "kind": "struct",
@@ -261,9 +278,13 @@
             "type": "pubkey"
           },
           {
-            "name": "list_item",
+            "name": "list",
             "type": {
-              "vec": "string"
+              "vec": {
+                "defined": {
+                  "name": "Task"
+                }
+              }
             }
           }
         ]
