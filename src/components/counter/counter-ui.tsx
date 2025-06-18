@@ -152,7 +152,7 @@ function CounterCard({ account }: { account: PublicKey }) {
 
   return accountQuery.isLoading ? (
     <span className="loading loading-spinner loading-lg"></span>
-  ) : (
+  ) : publicKey?.toBase58() === accountQuery.data?.owner.toBase58() ? (
     <Card className="bg-base-100 shadow-xl">
       <CardHeader>
         <CardTitle>Account: {ellipsify(account.toString(), 6)}</CardTitle>
@@ -161,18 +161,18 @@ function CounterCard({ account }: { account: PublicKey }) {
         </CardDescription> */}
       </CardHeader>
       <CardContent>
-        {accountQuery.data?.list.map((task: Task, index: number) => (
-          <div key={index} className="flex items-center justify-between mb-2">
-            <span className={task.isDone ? 'line-through' : ''}>{task.listItem}</span>
-            <div className="flex space-x-2">
-              <Button
-                onClick={() => toggleTask.mutateAsync({ index })}
-                disabled={toggleTask.isPending}
-                variant="outline"
-              >
-                {task.isDone ? 'Undo' : 'Done'}
-              </Button>
-              {publicKey && (
+        {publicKey?.toBase58() === accountQuery.data?.owner.toBase58() &&
+          accountQuery.data?.list.map((task: Task, index: number) => (
+            <div key={index} className="flex items-center justify-between mb-2">
+              <span className={task.isDone ? 'line-through' : ''}>{task.listItem}</span>
+              <div className="flex space-x-2">
+                <Button
+                  onClick={() => toggleTask.mutateAsync({ index })}
+                  disabled={toggleTask.isPending}
+                  variant="outline"
+                >
+                  {task.isDone ? 'Undo' : 'Done'}
+                </Button>
                 <Button
                   onClick={() => deleteTask.mutateAsync({ index })}
                   disabled={deleteTask.isPending}
@@ -180,10 +180,9 @@ function CounterCard({ account }: { account: PublicKey }) {
                 >
                   Delete
                 </Button>
-              )}
+              </div>
             </div>
-          </div>
-        ))}
+          ))}
         {publicKey && (
           <div className="mt-4">
             <input
@@ -204,5 +203,7 @@ function CounterCard({ account }: { account: PublicKey }) {
         )}
       </CardContent>
     </Card>
+  ) : (
+    <div></div>
   )
 }
