@@ -113,7 +113,7 @@ export function CounterList() {
       {accounts.isLoading ? (
         <span className="loading loading-spinner loading-lg"></span>
       ) : accounts.data?.length ? (
-        <div className="grid md:grid-cols-2 gap-4">
+        <div className="w-[800px] mx-auto mt-8">
           {accounts.data?.map((account) => (
             <CounterCard key={account.publicKey.toString()} account={account.publicKey} />
           ))}
@@ -161,28 +161,27 @@ function CounterCard({ account }: { account: PublicKey }) {
         </CardDescription> */}
       </CardHeader>
       <CardContent>
-        {publicKey?.toBase58() === accountQuery.data?.owner.toBase58() &&
-          accountQuery.data?.list.map((task: Task, index: number) => (
-            <div key={index} className="flex items-center justify-between mb-2">
-              <span className={task.isDone ? 'line-through' : ''}>{task.listItem}</span>
-              <div className="flex space-x-2">
-                <Button
-                  onClick={() => toggleTask.mutateAsync({ index })}
-                  disabled={toggleTask.isPending}
-                  variant="outline"
-                >
-                  {task.isDone ? 'Undo' : 'Done'}
-                </Button>
-                <Button
-                  onClick={() => deleteTask.mutateAsync({ index })}
-                  disabled={deleteTask.isPending}
-                  variant="destructive"
-                >
-                  Delete
-                </Button>
-              </div>
+        {accountQuery.data?.list.map((task: Task, index: number) => (
+          <div key={index} className="flex items-center justify-between mb-2">
+            <span className={task.isDone ? 'line-through' : ''}>{task.listItem}</span>
+            <div className="flex space-x-2">
+              <Button
+                onClick={() => toggleTask.mutateAsync({ index })}
+                disabled={toggleTask.isPending}
+                variant="outline"
+              >
+                {task.isDone ? 'Undo' : 'Done'}
+              </Button>
+              <Button
+                onClick={() => deleteTask.mutateAsync({ index })}
+                disabled={deleteTask.isPending}
+                variant="destructive"
+              >
+                Delete
+              </Button>
             </div>
-          ))}
+          </div>
+        ))}
         {publicKey && (
           <div className="mt-4">
             <input
@@ -203,7 +202,5 @@ function CounterCard({ account }: { account: PublicKey }) {
         )}
       </CardContent>
     </Card>
-  ) : (
-    <div></div>
-  )
+  ) : null
 }
