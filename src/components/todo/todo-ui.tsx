@@ -1,7 +1,7 @@
 'use client'
 
 import { Keypair, PublicKey } from '@solana/web3.js'
-import { useCounterProgram, useCounterProgramAccount } from './counter-data-access'
+import { useCounterProgram, useCounterProgramAccount } from './todo-data-access'
 import { ellipsify } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../ui/card'
