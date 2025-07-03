@@ -1,4 +1,4 @@
-# 📝 CRUD App
+# 📝 To Do List App (CRUD App)
 
 A lightweight full-stack demo combining Solana smart contracts (Anchor) and a React frontend for performing Create, Read, Update, Delete operations on-chain.
 
