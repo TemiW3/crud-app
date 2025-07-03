@@ -65,7 +65,13 @@ Note: The solana program code for the journal dapp can be found in `anchor/progr
 
 #### Commands
 
-Move to the `anchor` directory and run the `anchor` command `anchor run`
+Move to the `anchor` directory and run the following commands
+
+#### Build the program:
+
+```bash
+anchor build
+```
 
 #### Sync the program id:
 
@@ -75,12 +81,6 @@ You will manually need to update the constant in `anchor/src/counter-exports.ts`
 
 ```bash
 anchor keys sync
-```
-
-#### Build the program:
-
-```bash
-anchor build
 ```
 
 #### Start the test validator with the program deployed:
