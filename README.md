@@ -1,39 +1,169 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [
-`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# 📝 CRUD App
 
-## Getting Started
+A lightweight full-stack demo combining Solana smart contracts (Anchor) and a React frontend for performing Create, Read, Update, Delete operations on-chain.
 
-First, run the development server:
+---
+
+## 🚀 Project Overview
+
+This project demonstrates:
+
+- **Solana smart contract** (Anchor) for managing data (e.g., tasks or notes)
+- **React + TypeScript frontend** to interact with the contract
+- Use of **@solana/web3.js** and **@solana/wallet-adapter** for wallet connection and transactions
+
+It was built as part of my learning journey from QA Engineer → Web3 Security enthusiast, showcasing both development and security-aware coding practices.
+
+---
+
+## 🧩 Features
+
+- Create, Read, Update, Delete items on Solana
+- PDA-based account management per user
+- Client-side form validation and error handling
+- Anchor testing suite (optional)
+- Integrated “mini audit” notes per smart contract function in `audit-notes.md`
+
+---
+
+## 🛠️ Getting Started
+
+### Prerequisites
+
+- Node.js 16+
+- Rust v1.70.0 or higher
+- Anchor CLI 0.29.0 or higher
+- Solana CLI 1.17.0 or higher
+- A Solana wallet (e.g., Phantom extension)
+
+---
+
+### Installation
+
+#### Clone repo
+
+```bash
+git clone <repo-url>
+cd <repo-name>
+```
+
+#### Install Dependencies
+
+```bash
+npm install
+```
+
+---
+
+### Apps
+
+### Anchor
+
+This is a Solana program written in Rust using the Anchor framework.
+
+Note: The solana program code for the journal dapp can be found in `anchor/programs/crud-app/src/lib.rs`
+
+#### Commands
+
+Move to the `anchor` directory and run the `anchor` command `anchor run`
+
+#### Sync the program id:
+
+Running this command will create a new keypair in the `anchor/target/deploy` directory and save the address to the Anchor config file and update the `declare_id!` macro in the `./src/lib.rs` file of the program.
+
+You will manually need to update the constant in `anchor/src/counter-exports.ts` to match the new program id.
+
+```bash
+anchor keys sync
+```
+
+#### Build the program:
+
+```bash
+anchor build
+```
+
+#### Start the test validator with the program deployed:
+
+In a separate terminal start the solana-test validator
+
+```bash
+solana-test-validator
+```
+
+#### Deploy to localnet
+
+```bash
+anchor deploy --provider.cluster localnet
+```
+
+### Web
+
+This is a React app that uses the Anchor generated client to interact with the Solana program.
+
+Navigate to where the front end is from the root of the project by
+
+```bash
+cd src
+```
+
+#### Commands
+
+Build the web app
+
+```bash
+npm run build
+```
+
+Start the web app
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Then open `http://localhost:3000` in your browser, connect your wallet, and try the CRUD UI.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## ✅ Testing
 
-## Learn More
+To run Anchor tests:
 
-To learn more about Next.js, take a look at the following resources:
+```bash
+anchor test
+```
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+---
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions
-are welcome!
+## 📂 Project Structure
 
-## Deploy on Vercel
+```
+/
+├── programs/crud_app/     # Anchor smart contract code (Rust)
+├── src/                   # React frontend (TypeScript)
+└── README.md              # This documentation
+```
 
-The easiest way to deploy your Next.js app is to use
-the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme)
-from the creators of Next.js.
+---
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for
-more details.
+## 📘 What's Next
+
+- Add automated test suite for the frontend
+- Add role-based access control (e.g., only owner can update)
+- Write a standalone blog post walkthrough of the codebase
+
+---
+
+## 🔗 Links
+
+- 🧾 [Audit Notes](./audit-notes.md)
+- 💻 [Anchor Docs](https://book.anchor-lang.com/)
+- 🌐 [Solana Web3.js](https://docs.solana.com/developing/clients/javascript-api)
+- 🌍 [@solana/wallet-adapter](https://github.com/solana-labs/wallet-adapter)
+
+---
+
+### 📫 Contact
+
+Built by **Temi W** — transitioning from QA automation to smart contract security auditing.  
+Feel free to [connect with me on Twitter](#) or check out my other work in my GitHub profile.
+
+---
