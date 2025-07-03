@@ -152,14 +152,7 @@ anchor test
 
 ---
 
-## 🔗 Links
-
-- 🧾 [Audit Notes](./audit-notes.md)
-- 💻 [Anchor Docs](https://book.anchor-lang.com/)
-- 🌐 [Solana Web3.js](https://docs.solana.com/developing/clients/javascript-api)
-- 🌍 [@solana/wallet-adapter](https://github.com/solana-labs/wallet-adapter)
-
----
+## 🔗 [Demo Video](https://youtu.be/Uf5sASy8diA)
 
 ### 📫 Contact
 
